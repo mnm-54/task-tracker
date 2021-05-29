@@ -1,19 +1,41 @@
 import { Injectable } from '@angular/core';
 
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {Observable, of} from 'rxjs';
+import {Observable} from 'rxjs';
 import {Tasks} from '../Tasks';
-import {TASKS} from '../mock-tasks';
+
+const httpOptions={
+  headers: new HttpHeaders({
+    'content-type': 'application/json'
+  })
+}
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class TaskService {
 
-  constructor() { }
+  private apiUrl= 'http://localhost:5000/tasks';
+
+  constructor(private http:HttpClient) { }
 
   getTask():Observable<Tasks[]>{
-    const tasks= of(TASKS);
-    return tasks;
+    return this.http.get<Tasks[]>(this.apiUrl);
   }
+
+  deleteTask(task:Tasks):Observable<Tasks>{
+    const url=`${this.apiUrl}/${task.id}`;
+    return this.http.delete<Tasks>(url);
+  }
+
+  updateTaskReminder(task:Tasks):Observable<Tasks>{
+    const url=`${this.apiUrl}/${task.id}`;
+    return this.http.put<Tasks>(url,task,httpOptions);
+  }
+
+  addTask(task:Tasks):Observable<Tasks>{
+    return this.http.post<Tasks>(this.apiUrl,task,httpOptions)
+  }
+
 }
